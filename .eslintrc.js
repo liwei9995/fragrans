@@ -58,6 +58,7 @@ module.exports = {
     'no-danger': 0,
     'no-param-reassign': 0,
     'no-restricted-syntax': 0,
+    'no-trailing-spaces': 'error',
     'padding-line-between-statements': ['error', {
       blankLine: 'always',
       prev: ['const', 'let', 'var'],
