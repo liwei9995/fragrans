@@ -26,10 +26,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context)
   }
 
-  handleRequest(err, user, info) {
+  handleRequest(err, user) {
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
-      throw err || info || new UnauthorizedException()
+      throw err || new UnauthorizedException()
     }
 
     return user
