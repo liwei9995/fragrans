@@ -3,9 +3,11 @@ import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
-import { MongooseModule } from '@nestjs/mongoose'
 import { ConfigModule } from './config/config.module'
 import { ConfigService } from './config/config.service'
+import { MongooseModule } from '@nestjs/mongoose'
+import { StorageModule } from './storage/storage.module'
+import { UsersModule } from './users/users.module'
 import { LoggingInterceptor } from './common/interceptor/logging.interceptor'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { RolesGuard } from './common/guard/roles.guard'
@@ -34,6 +36,8 @@ import { RolesGuard } from './common/guard/roles.guard'
       inject: [ ConfigService ],
     }),
     AuthModule,
+    UsersModule,
+    StorageModule
   ],
   controllers: [ AppController ],
   providers: [
