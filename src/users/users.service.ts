@@ -37,6 +37,10 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
     return (await createdUser.save()).toJSON()
   }
 
+  async deleteOne(id: string): Promise<User> {
+    return this.userModel.findOneAndRemove({ _id: id })
+  }
+
   async deleteAll() {
     return this.userModel.deleteMany()
   }

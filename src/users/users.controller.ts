@@ -13,12 +13,15 @@ import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { MongoExceptionFilter } from '../common/filter/mongo-exception.filter'
 import { Public } from '../common/decorator/auth.decorator'
+import { Role } from '../common/enums/role.enum'
+import { Roles } from '../common/decorator/roles.decorator'
 
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
+  @Roles(Role.Admin)
   async findAll() {
     return this.usersService.findAll()
   }
@@ -50,7 +53,18 @@ export class UsersController {
     return user
   }
 
+  @Delete(':id')
+  @Roles(Role.Admin)
+  async deleteOne(@Param('id') id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException()
+    }
+
+    return this.usersService.deleteOne(id)
+  }
+
   @Delete()
+  @Roles(Role.Admin)
   async deleteAll() {
     return this.usersService.deleteAll()
   }
