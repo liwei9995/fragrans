@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document } from 'mongoose'
 
-export type StorageDocument = Storage & Document;
+export type StorageDocument = Storage & Document
 
 @Schema({
   timestamps: true,
@@ -29,7 +29,7 @@ export class Storage {
     MD5Hash: string
 
   @Prop()
-    folderId: string
+    folderId?: string
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage)
