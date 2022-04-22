@@ -16,7 +16,7 @@ export class StorageService {
     return this.storageModel.find(query).exec()
   }
 
-  async findOne(query = {}): Promise<Storage | undefined> {
+  async findOne(query = {}): Promise<any> {
     return this.storageModel.findOne(query).lean()
   }
 
@@ -57,5 +57,39 @@ export class StorageService {
     }
 
     return fileIDs
+  }
+
+  async getFiles(query = {}, pagination = {}) {
+    const files = await this.storageModel.getFiles(query, pagination)
+
+    return files
+  }
+
+  async getFile(_id, userId) {
+    const doc = await this.findOne({
+      _id,
+      userId
+    })
+
+    if (!doc) {
+      return {
+        stream: ''
+      }
+    }
+
+    const stream = this.localStorage.fetch(doc._id)
+
+    if (!stream) {
+      this.logger.error(`found file with id ${doc._id} in database, but no file found on file system.`)
+
+      return {
+        stream: ''
+      }
+    }
+
+    return {
+      stream,
+      doc
+    }
   }
 }

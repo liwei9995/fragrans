@@ -20,6 +20,9 @@ export class Storage {
     mimeType: string
 
   @Prop()
+    contentType: string
+
+  @Prop()
     encoding: string
 
   @Prop()
@@ -30,6 +33,9 @@ export class Storage {
 
   @Prop()
     folderId?: string
+
+  @Prop()
+    userId: string
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage)
