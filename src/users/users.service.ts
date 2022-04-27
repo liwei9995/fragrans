@@ -16,7 +16,7 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   onModuleInit() {
-    this.logger.log('The users module has been initialized.')
+    this.logger.log('UsersService dependencies initialized')
   }
 
   onApplicationShutdown(signal: string) {

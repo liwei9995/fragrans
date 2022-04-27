@@ -9,7 +9,8 @@ import {
   BadRequestException,
   Request,
   Param,
-  Logger
+  Logger,
+  Delete
 } from '@nestjs/common'
 import * as contentDisposition from 'content-disposition'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
@@ -27,8 +28,17 @@ export class StorageController {
   @Post('upload')
   @Roles(Role.User)
   @UseInterceptors(AnyFilesInterceptor())
-  async uploadFile(@UploadedFiles() files: Array<Express.Multer.File>) {
-    const ids = await this.storageService.store(files)
+  async uploadFile(
+    @Request() req,
+    @UploadedFiles() files: Array<Express.Multer.File>
+  ) {
+    const userId = req.user?.userId
+
+    if (!Types.ObjectId.isValid(userId) || files.length <= 0) {
+      throw new BadRequestException()
+    }
+
+    const ids = await this.storageService.store(files, userId)
 
     return ids
   }
@@ -39,10 +49,10 @@ export class StorageController {
     @Param('id') id: string,
     @Request() req,
     @Response({ passthrough: true }) res
-  ): Promise<StreamableFile | string> {
+  ): Promise<BadRequestException | StreamableFile | string> {
     const userId = req.user?.userId
 
-    if (!Types.ObjectId.isValid(id) || !userId) {
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
       throw new BadRequestException()
     }
 
@@ -52,7 +62,7 @@ export class StorageController {
     } = await this.storageService.getFile(id, userId)
     const filename = doc?.originalName
       ? doc?.originalName
-      : doc?.extName ? doc?.id + doc?.extName : null
+      : doc?.extName ? doc?._id + doc?.extName : null
 
     if (filename) {
       this.logger.log(`download file with filename: ${filename}`)
@@ -63,8 +73,7 @@ export class StorageController {
 
     if (doc) {
       res.set({
-        'Content-Type': doc?.contentType,
-        'Last-Modified': doc?.dateModified,
+        'Content-Type': doc?.mimeType,
         'ETag': doc?.MD5Hash,
       })
     }
@@ -72,5 +81,22 @@ export class StorageController {
     const file = stream ? new StreamableFile(stream as ReadStream) : ''
 
     return file
+  }
+
+  @Delete(':id')
+  @Roles(Role.User)
+  async removeFile(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<BadRequestException | string > {
+    const userId = req.user?.userId
+
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException()
+    }
+
+    const result = await this.storageService.removeFile(id, userId)
+
+    return result
   }
 }
