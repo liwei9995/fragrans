@@ -37,6 +37,21 @@ export class UsersController {
     return user
   }
 
+  @Post(':id')
+  @Roles(Role.User)
+  async findOneAndUpdate(
+    @Param('id') id: string,
+    @Body() body: Record<string, string>
+  ) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException()
+    }
+
+    const user = await this.usersService.findOneAndUpdate({ _id: id }, body)
+
+    return user
+  }
+
   @Public()
   @Post()
   @UseFilters(MongoExceptionFilter)

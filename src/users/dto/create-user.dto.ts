@@ -21,6 +21,9 @@ export class CreateUserDto {
   @IsNumber()
     age: number
 
+  @IsString()
+    avatar: string
+
   @IsEmail()
     email: string
 

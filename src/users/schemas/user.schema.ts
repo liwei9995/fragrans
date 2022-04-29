@@ -28,6 +28,9 @@ export class User {
     age?: number
 
   @Prop()
+    avatar?: string
+
+  @Prop()
     email?: string
 
   @Prop({

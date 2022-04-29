@@ -31,6 +31,14 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
     return this.userModel.findOne(query).select(select).lean()
   }
 
+  async findOneAndUpdate(query = {}, update = {}, options = {}): Promise<User> {
+    return this.userModel.findOneAndUpdate(query, update, {
+      ...options,
+      new: true,
+      fields: '-password'
+    })
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const createdUser = new this.userModel(createUserDto)
 
