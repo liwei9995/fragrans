@@ -28,8 +28,13 @@ export class AuthService {
   async login(req: any) {
     const user = req?.user
     const payload = {
-      username: user?.username,
       sub: user?._id,
+      email: user?.email,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      gender: user?.gender,
+      age: user?.age,
+      avatar: user?.avatar,
       roles: user?.roles,
     }
 
