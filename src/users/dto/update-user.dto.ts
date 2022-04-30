@@ -1,6 +1,4 @@
 import {
-  IsEmail,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -9,16 +7,7 @@ import {
   MaxLength
 } from 'class-validator'
 
-export class CreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  @IsEmail()
-    email: string
-
-  @IsNotEmpty()
-  @IsString()
-    password: string
-
+export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @MaxLength(30)

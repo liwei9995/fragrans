@@ -7,10 +7,14 @@ import {
   Param,
   BadRequestException,
   UseFilters,
+  NotFoundException,
+  Res,
+  HttpStatus,
 } from '@nestjs/common'
 import { Types } from 'mongoose'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 import { MongoExceptionFilter } from '../common/filter/mongo-exception.filter'
 import { Public } from '../common/decorator/auth.decorator'
 import { Role } from '../common/enums/role.enum'
@@ -39,15 +43,32 @@ export class UsersController {
 
   @Post(':id')
   @Roles(Role.User)
-  async findOneAndUpdate(
+  async updateProfile(
     @Param('id') id: string,
-    @Body() body: Record<string, string>
+    @Body() updateUserDto: UpdateUserDto
   ) {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException()
     }
 
-    const user = await this.usersService.findOneAndUpdate({ _id: id }, body)
+    const {
+      firstName,
+      lastName,
+      gender,
+      age,
+      avatar
+    } = updateUserDto
+    const user = await this.usersService.findOneAndUpdate({ _id: id }, {
+      firstName,
+      lastName,
+      gender,
+      age,
+      avatar
+    })
+
+    if (!user) {
+      throw new NotFoundException('User does not exist.')
+    }
 
     return user
   }
@@ -70,12 +91,20 @@ export class UsersController {
 
   @Delete(':id')
   @Roles(Role.Admin)
-  async deleteOne(@Param('id') id: string) {
+  async deleteOne(
+    @Res() res,
+    @Param('id') id: string
+  ) {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException()
     }
 
-    return this.usersService.deleteOne(id)
+    const user = await this.usersService.deleteOne(id)
+
+    return res.status(HttpStatus.OK).json({
+      message: 'User has been deleted.',
+      user
+    })
   }
 
   @Delete()

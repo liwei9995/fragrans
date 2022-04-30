@@ -10,7 +10,7 @@ export type UserDocument = User & Document;
 })
 export class User {
   @Prop({ required: true, unique: true })
-    username: string
+    email: string
 
   @Prop({ required: true })
     password: string
@@ -29,9 +29,6 @@ export class User {
 
   @Prop()
     avatar?: string
-
-  @Prop()
-    email?: string
 
   @Prop({
     type: Array,
