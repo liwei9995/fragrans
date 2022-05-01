@@ -52,4 +52,17 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
   async deleteAll() {
     return this.userModel.deleteMany()
   }
+
+  async updatePassword(id: string, password: string): Promise<string> {
+    const user = await this.userModel.findById(id)
+
+    if (!user) {
+      return 'User not found.'
+    }
+
+    user.password = password
+    user.save()
+
+    return 'Password has been changed.'
+  }
 }

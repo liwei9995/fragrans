@@ -8,6 +8,7 @@ import {
   BadRequestException,
   UseFilters,
   NotFoundException,
+  Request,
   Res,
   HttpStatus,
 } from '@nestjs/common'
@@ -41,7 +42,7 @@ export class UsersController {
     return user
   }
 
-  @Post(':id')
+  @Post('profile/:id')
   @Roles(Role.User)
   async updateProfile(
     @Param('id') id: string,
@@ -111,5 +112,34 @@ export class UsersController {
   @Roles(Role.Admin)
   async deleteAll() {
     return this.usersService.deleteAll()
+  }
+
+  @Post('password')
+  @Roles(Role.User)
+  @UseFilters(MongoExceptionFilter)
+  async updatePassword(
+    @Request() req,
+    @Body() body
+  ) {
+    const userId = req.user?.userId
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException()
+    }
+
+    const {
+      password,
+      changePassword
+    } = body
+
+    if (password?.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters long.')
+    } else if (password !== changePassword) {
+      throw new BadRequestException('Passwords do not match.')
+    }
+
+    const msg = await this.usersService.updatePassword(userId, password)
+
+    return msg
   }
 }
