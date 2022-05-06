@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import LocalStorage from './storage.local'
 import { InjectModel } from '@nestjs/mongoose'
-import { Storage } from './schemas/storage.schema'
+import { Storage, StorageDocument } from './schemas/storage.schema'
 import md5 from '../utils/md5'
 
 @Injectable()
@@ -30,6 +30,23 @@ export class StorageService implements OnModuleInit {
 
   async deleteAll(): Promise<any> {
     return this.storageModel.deleteMany()
+  }
+
+  async createFolder(folder = {}): Promise<StorageDocument> {
+    return this.storageModel.createByFolder(folder)
+  }
+
+  async getPath(fileId, userId, items = []): Promise<Storage[]> {
+    const doc = await this.findOne({
+      _id: fileId,
+      userId
+    })
+    const parentId = doc?.parentId
+    const pathItems = !parentId || parentId === 'root'
+      ? [ doc ]
+      : await this.getPath(parentId, userId, items.concat(doc))
+
+    return items.concat(pathItems)
   }
 
   async store(files, userId: string): Promise<Record<string, string>> {

@@ -7,32 +7,41 @@ export type StorageDocument = Storage & Document
   timestamps: true,
 })
 export class Storage {
-  @Prop()
+  @Prop({ required: true })
     originalName: string
 
   @Prop()
-    baseName: string
+    baseName?: string
 
   @Prop()
-    extName: string
+    extName?: string
 
   @Prop()
-    mimeType: string
+    mimeType?: string
 
   @Prop()
-    encoding: string
+    encoding?: string
 
   @Prop()
-    size: number
+    size?: number
 
   @Prop()
-    MD5Hash: string
+    MD5Hash?: string
+
+  @Prop({ default: 'root' })
+    parentId?: string
+
+  @Prop({ required: true })
+    type: string
 
   @Prop()
-    folderId?: string
+    userId?: string
 
   @Prop()
-    userId: string
+    createdAt: Date
+
+  @Prop()
+    updatedAt: Date
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage)

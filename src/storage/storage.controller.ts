@@ -8,6 +8,7 @@ import {
   StreamableFile,
   BadRequestException,
   Request,
+  Body,
   Param,
   Logger,
   Delete
@@ -41,6 +42,100 @@ export class StorageController {
     const ids = await this.storageService.store(files, userId)
 
     return ids
+  }
+
+  @Post('folder')
+  @Roles(Role.User)
+  async createFolder(
+    @Request() req,
+    @Body() body
+  ): Promise<any> {
+    const userId = req.user?.userId
+    const {
+      name,
+      parentId,
+      type,
+    } = body
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException()
+    }
+
+    const folder = await this.storageService.createFolder({
+      originalname: name,
+      parentId,
+      type,
+      userId,
+    })
+
+    return {
+      _id: folder._id,
+      originalName: folder.originalName,
+      parentId: folder.parentId,
+      type: folder.type,
+      createdAt: folder.createdAt,
+      updatedAt: folder.updatedAt,
+    }
+  }
+
+  @Post('list')
+  @Roles(Role.User)
+  async getFiles(
+    @Request() req,
+    @Body() body
+  ): Promise<Storage[]> {
+    const userId = req.user?.userId
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException()
+    }
+
+    const {
+      query = {},
+      pagination
+    } = body
+
+    const files = await this.storageService.getFiles({
+      ...query,
+      userId
+    }, pagination)
+
+    const docs = files?.docs?.map((file) => ({
+      id: file._id,
+      name: file.originalName,
+      baseName: file.baseName,
+      extName: file.extName,
+      mimeType: file.mimeType,
+      encoding: file.encoding,
+      size: file.size,
+      parentId: file.parentId,
+      type: file.type,
+      createdAt: file.createdAt,
+      updatedAt: file.updatedAt,
+    }))
+
+    return {
+      ...files,
+      docs
+    }
+  }
+
+  @Post('path')
+  @Roles(Role.User)
+  async getPath(
+    @Request() req,
+    @Body() body
+  ): Promise<any[]> {
+    const userId = req.user?.userId
+    const { fileId } = body
+
+    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(fileId)) {
+      throw new BadRequestException()
+    }
+
+    const files = await this.storageService.getPath(fileId, userId)
+
+    return files.reverse()
   }
 
   @Get(':id')
