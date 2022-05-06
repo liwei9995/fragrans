@@ -21,6 +21,20 @@ import { Roles } from '../common/decorator/roles.decorator'
 import { StorageService } from './storage.service'
 import { ReadStream } from 'fs'
 
+const desensitize = (file) => ({
+  id: file._id,
+  name: file.originalName,
+  baseName: file.baseName,
+  extName: file.extName,
+  mimeType: file.mimeType,
+  encoding: file.encoding,
+  size: file.size,
+  parentId: file.parentId,
+  type: file.type,
+  createdAt: file.createdAt,
+  updatedAt: file.updatedAt,
+})
+
 @Controller('storage')
 export class StorageController {
   constructor(private storageService: StorageService) {}
@@ -100,19 +114,7 @@ export class StorageController {
       userId
     }, pagination)
 
-    const docs = files?.docs?.map((file) => ({
-      id: file._id,
-      name: file.originalName,
-      baseName: file.baseName,
-      extName: file.extName,
-      mimeType: file.mimeType,
-      encoding: file.encoding,
-      size: file.size,
-      parentId: file.parentId,
-      type: file.type,
-      createdAt: file.createdAt,
-      updatedAt: file.updatedAt,
-    }))
+    const docs = files?.docs?.map((file) => desensitize(file))
 
     return {
       ...files,
@@ -135,7 +137,10 @@ export class StorageController {
 
     const files = await this.storageService.getPath(fileId, userId)
 
-    return files.reverse()
+    return files
+      .filter((file) => file?._id?.toString() !== fileId)
+      .reverse()
+      .map((file) => desensitize(file))
   }
 
   @Get(':id')

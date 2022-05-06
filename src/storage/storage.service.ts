@@ -36,7 +36,7 @@ export class StorageService implements OnModuleInit {
     return this.storageModel.createByFolder(folder)
   }
 
-  async getPath(fileId, userId, items = []): Promise<Storage[]> {
+  async getPath(fileId, userId, items = []): Promise<StorageDocument[]> {
     const doc = await this.findOne({
       _id: fileId,
       userId
@@ -44,7 +44,7 @@ export class StorageService implements OnModuleInit {
     const parentId = doc?.parentId
     const pathItems = !parentId || parentId === 'root'
       ? [ doc ]
-      : await this.getPath(parentId, userId, items.concat(doc))
+      : await this.getPath(parentId, userId, [ doc ])
 
     return items.concat(pathItems)
   }
