@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   UploadedFiles,
   UseInterceptors,
   Response,
@@ -22,17 +23,17 @@ import { StorageService } from './storage.service'
 import { ReadStream } from 'fs'
 
 const desensitize = (file) => ({
-  id: file._id,
-  name: file.originalName,
-  baseName: file.baseName,
-  extName: file.extName,
-  mimeType: file.mimeType,
-  encoding: file.encoding,
-  size: file.size,
-  parentId: file.parentId,
-  type: file.type,
-  createdAt: file.createdAt,
-  updatedAt: file.updatedAt,
+  id: file?._id,
+  name: file?.name,
+  baseName: file?.baseName,
+  extName: file?.extName,
+  mimeType: file?.mimeType,
+  encoding: file?.encoding,
+  size: file?.size,
+  parentId: file?.parentId,
+  type: file?.type,
+  createdAt: file?.createdAt,
+  updatedAt: file?.updatedAt,
 })
 
 @Controller('storage')
@@ -84,7 +85,7 @@ export class StorageController {
 
     return {
       _id: folder._id,
-      originalName: folder.originalName,
+      name: folder.name,
       parentId: folder.parentId,
       type: folder.type,
       createdAt: folder.createdAt,
@@ -111,7 +112,8 @@ export class StorageController {
 
     const files = await this.storageService.getFiles({
       ...query,
-      userId
+      userId,
+      trashed: false,
     }, pagination)
 
     const docs = files?.docs?.map((file) => desensitize(file))
@@ -143,6 +145,27 @@ export class StorageController {
       .map((file) => desensitize(file))
   }
 
+  @Post('move')
+  @Roles(Role.User)
+  async moveFile(
+    @Request() req,
+    @Body() body
+  ): Promise<any> {
+    const userId = req.user?.userId
+    const {
+      fileId,
+      parentId,
+    } = body
+
+    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(fileId) || !parentId) {
+      throw new BadRequestException()
+    }
+
+    const result = await this.storageService.updateOne(fileId, userId, { parentId }, { new: true })
+
+    return result
+  }
+
   @Get(':id')
   @Roles(Role.User)
   async getFile(
@@ -160,8 +183,8 @@ export class StorageController {
       doc,
       stream
     } = await this.storageService.getFile(id, userId)
-    const filename = doc?.originalName
-      ? doc?.originalName
+    const filename = doc?.name
+      ? doc?.name
       : doc?.extName ? doc?._id + doc?.extName : null
 
     if (filename) {
@@ -183,6 +206,29 @@ export class StorageController {
     return file
   }
 
+  @Put(':id')
+  @Roles(Role.User)
+  async updateFile(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() body
+  ): Promise<any> {
+    const userId = req.user?.userId
+
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException()
+    }
+
+    const result = await this.storageService.updateOne(
+      id,
+      userId,
+      { name: body.name },
+      { new: true }
+    )
+
+    return result
+  }
+
   @Delete(':id')
   @Roles(Role.User)
   async removeFile(
@@ -195,7 +241,7 @@ export class StorageController {
       throw new BadRequestException()
     }
 
-    const result = await this.storageService.removeFile(id, userId)
+    const result = await this.storageService.removeFileTemporary(id, userId)
 
     return result
   }

@@ -8,7 +8,7 @@ export type StorageDocument = Storage & Document
 })
 export class Storage {
   @Prop({ required: true })
-    originalName: string
+    name: string
 
   @Prop()
     baseName?: string
@@ -36,6 +36,9 @@ export class Storage {
 
   @Prop()
     userId?: string
+
+  @Prop({ default: false })
+    trashed: boolean
 
   @Prop()
     createdAt: Date

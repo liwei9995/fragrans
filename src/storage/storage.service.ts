@@ -28,6 +28,13 @@ export class StorageService implements OnModuleInit {
     return this.storageModel.findOneAndRemove({ _id: id, userId })
   }
 
+  async updateOne(id: string, userId: string, updater = {}, options = {}): Promise<Storage> {
+    return this.storageModel.findOneAndUpdate({
+      _id: id,
+      userId
+    }, updater, options)
+  }
+
   async deleteAll(): Promise<any> {
     return this.storageModel.deleteMany()
   }
@@ -39,11 +46,12 @@ export class StorageService implements OnModuleInit {
   async getPath(fileId, userId, items = []): Promise<StorageDocument[]> {
     const doc = await this.findOne({
       _id: fileId,
-      userId
+      userId,
+      trashed: false
     })
     const parentId = doc?.parentId
     const pathItems = !parentId || parentId === 'root'
-      ? [ doc ]
+      ? doc ? [ doc ] : []
       : await this.getPath(parentId, userId, [ doc ])
 
     return items.concat(pathItems)
@@ -125,6 +133,24 @@ export class StorageService implements OnModuleInit {
       stream,
       doc
     }
+  }
+
+  async removeFileTemporary(id: string, userId: string): Promise<any> {
+    const doc = await this.findOne({
+      _id: id,
+      userId
+    })
+
+    this.logger.log(`Storage service: - [remove - temporary] - the file id => ${id}`)
+    this.logger.log(`Storage service: - [remove - temporary] - the file info => ${JSON.stringify(doc)}`)
+
+    if (!doc) {
+      return ''
+    }
+
+    await this.updateOne(id, userId, { trashed: true })
+
+    return id
   }
 
   async removeFile(id: string, userId: string): Promise<any> {
