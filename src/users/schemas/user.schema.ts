@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document, NativeError } from 'mongoose'
+import { Document } from 'mongoose'
 import * as bcrypt from 'bcrypt'
 import { Role } from '../../common/enums/role.enum'
 
@@ -52,7 +52,7 @@ const comparePassword: comparePasswordFunction = function (
   bcrypt.compare(
     candidatePassword,
     this.password,
-    (err: NativeError, isMatch: boolean) => {
+    (err: Error, isMatch: boolean) => {
       cb(err, isMatch)
     },
   )

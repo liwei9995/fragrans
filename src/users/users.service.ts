@@ -39,7 +39,7 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
     })
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
     const createdUser = new this.userModel(createUserDto)
 
     return (await createdUser.save()).toJSON()
