@@ -4,8 +4,6 @@ LABEL web.maintainer=alex.li@oyiyio.com \
       web.name=yi-svc-storage \
       web.version=0.0.1
 
-ENV NODE_ENV=production
-
 EXPOSE 3000
 
 # Run as an unprivileged user.
@@ -18,10 +16,11 @@ WORKDIR /app
 COPY --chown=oyiyio:oyiyio package.json /app/
 COPY --chown=oyiyio:oyiyio yarn.lock /app/
 
-RUN yarn add @nestjs/cli -g
 RUN yarn install
 
 COPY --chown=oyiyio:oyiyio . .
+
+ENV NODE_ENV=production
 
 RUN yarn build
 

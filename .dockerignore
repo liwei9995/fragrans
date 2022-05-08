@@ -8,7 +8,7 @@ Dockerfile
 docker-compose.yaml
 coverage
 deploy
-storage
+bucket
 LICENSE
 README.md
 .eslintrc

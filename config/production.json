@@ -13,6 +13,6 @@
     }
   },
   "storage": {
-    "destination": "/public/data/uploads"
+    "destination": "/bucket/storage"
   }
 }

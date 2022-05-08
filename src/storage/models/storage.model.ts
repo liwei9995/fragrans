@@ -1,0 +1,58 @@
+import { basename, extname } from 'path'
+
+export type File = {
+  size?: number
+  originalname?: string
+  mimetype?: string
+  type?: string
+  encoding?: string
+  hash?: string
+  parentId?: string
+  userId: string
+}
+
+export default class StorageClass {
+  static findOne: any
+  static paginate: any
+  static create: any
+
+  static async createByFile(file = {} as File) {
+    const obj = {
+      size: file.size,
+      name: file.originalname,
+      extName: extname(file.originalname),
+      baseName: basename(file.originalname),
+      mimeType: file.mimetype,
+      encoding: file.encoding,
+      MD5Hash: file.hash,
+      parentId: file.parentId,
+      userId: file.userId,
+      type: file.type || 'file',
+    }
+
+    return this.create(obj)
+  }
+
+  static async createByFolder(folder = {} as File) {
+    const obj = {
+      name: folder.originalname,
+      parentId: folder.parentId,
+      userId: folder.userId,
+      type: folder.type || 'folder',
+    }
+
+    return this.create(obj)
+  }
+
+  static async findByHash(hash) {
+    return this.findOne({
+      MD5Hash: hash,
+    })
+  }
+
+  static async getFiles(query = {}, pagination = {}) {
+    const files = await this.paginate(query, pagination)
+
+    return files
+  }
+}
