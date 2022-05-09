@@ -6,6 +6,7 @@ test
 docs
 Dockerfile
 docker-compose.yaml
+docker-compose.develop.yaml
 coverage
 deploy
 bucket

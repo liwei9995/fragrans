@@ -6,7 +6,7 @@
   "db": {
     "mongo": {
       "url": "localhost",
-      "port": 29017,
+      "port": 25017,
       "database": "nest-practice",
       "username": "test",
       "password": "nest"
