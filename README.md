@@ -10,17 +10,17 @@ Osmanthus fragrans Lour is my favorite flower, so I named this project fragrans.
 
 Fragrans aims to provide users the ability to deploy their own file storage service with efficiency and scalability.
 
-## Installation
-
-```bash
-$ npm install
-```
-
 ## Preparation
 
 ```bash
 # start mongodb
 $ docker-compose -f docker-compose.develop.yaml up -d
+```
+
+## Installation
+
+```bash
+$ npm install
 ```
 
 ## Running the app
