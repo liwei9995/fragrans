@@ -21,6 +21,7 @@ import { RolesGuard } from './common/guard/roles.guard'
         const dbConfig = configService.get('db.mongo') as {
           username: string
           password: string
+          database: string
           url: string
           port: number
         }
@@ -28,9 +29,10 @@ import { RolesGuard } from './common/guard/roles.guard'
         const password = dbConfig?.password
         const url = dbConfig?.url
         const port = dbConfig?.port
+        const database = dbConfig?.database
 
         return {
-          uri: `mongodb://${username}:${password}@${url}:${port}/`,
+          uri: `mongodb://${username}:${password}@${url}:${port}/${database}?authSource=admin`,
         }
       },
       inject: [ ConfigService ],
