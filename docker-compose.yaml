@@ -6,7 +6,7 @@ services:
     image: mongo
     restart: always
     ports:
-      - 26017:27017
+      - 25017:27017
     volumes:
       - /oyiyio/volumes/storage/db:/data/db
     environment:
