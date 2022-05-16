@@ -8,7 +8,7 @@ EXPOSE 3000
 
 # Run as an unprivileged user.
 RUN addgroup -S oyiyio && adduser -S -G oyiyio oyiyio
-RUN mkdir /app && chown oyiyio /app
+RUN mkdir -p /app/bucket/storage && chown oyiyio /app
 USER oyiyio
 WORKDIR /app
 
