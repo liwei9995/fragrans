@@ -8,7 +8,7 @@ services:
     ports:
       - 25017:27017
     volumes:
-      - /oyiyio/volumes/storage/db:/data/db
+      - storage-db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: test
       MONGO_INITDB_ROOT_PASSWORD: nest
@@ -29,9 +29,13 @@ services:
       context: .
     restart: always
     volumes:
-      - /oyiyio/volumes/storage/files:/app/bucket/storage
+      - storage-files:/app/bucket/storage
     ports:
       - 8085:3000
     depends_on:
       - mongo
     privileged: true
+
+volumes:
+  storage-files:
+  storage-db:
