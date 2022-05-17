@@ -10,6 +10,7 @@ EXPOSE 3000
 RUN addgroup -S oyiyio && adduser -S -G oyiyio oyiyio
 RUN mkdir /app && chown oyiyio /app
 USER oyiyio
+
 WORKDIR /app
 
 COPY --chown=oyiyio:oyiyio package.json /app/
