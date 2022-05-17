@@ -8,7 +8,7 @@ services:
     ports:
       - 25017:27017
     volumes:
-      - /oyiyio/volumes/storage/db:/data/db
+      - storage-db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: test
       MONGO_INITDB_ROOT_PASSWORD: nest
@@ -23,3 +23,6 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: test
       ME_CONFIG_MONGODB_ADMINPASSWORD: nest
       ME_CONFIG_MONGODB_URL: mongodb://test:nest@mongo:27017/
+
+volumes:
+  storage-db:
