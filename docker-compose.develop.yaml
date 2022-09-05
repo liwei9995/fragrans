@@ -8,7 +8,7 @@ services:
     ports:
       - 25018:27017
     volumes:
-      - storage-db:/data/db
+      - storage-db-dev:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: test
       MONGO_INITDB_ROOT_PASSWORD: nest
