@@ -25,4 +25,4 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://test:nest@mongo:27017/
 
 volumes:
-  storage-db:
+  storage-db-dev:
