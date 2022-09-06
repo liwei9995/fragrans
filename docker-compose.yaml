@@ -29,7 +29,7 @@ services:
       context: .
     restart: always
     volumes:
-      - storage-files:/app
+      - storage-files:/app/bucket
     ports:
       - 8085:3000
     depends_on:
