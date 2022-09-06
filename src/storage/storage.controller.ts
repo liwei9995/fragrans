@@ -87,7 +87,10 @@ export class StorageController {
     })
 
     if (doc?.name) {
-      throw new ConflictException('Folder is already exists')
+      throw new ConflictException({
+        statusCode: 100409,
+        message: 'Folder already exists',
+      })
     }
 
     const folder = await this.storageService.createFolder({
