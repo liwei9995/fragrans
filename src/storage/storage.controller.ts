@@ -8,6 +8,7 @@ import {
   Response,
   StreamableFile,
   BadRequestException,
+  ConflictException,
   Request,
   Body,
   Param,
@@ -75,6 +76,18 @@ export class StorageController {
 
     if (!Types.ObjectId.isValid(userId)) {
       throw new BadRequestException()
+    }
+
+    const doc = await this.storageService.findOne({
+      name,
+      parentId,
+      userId,
+      type,
+      trashed: false
+    })
+
+    if (doc?.name) {
+      throw new ConflictException('Folder is already exists')
     }
 
     const folder = await this.storageService.createFolder({
