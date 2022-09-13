@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16-alpine
 
 LABEL web.maintainer=alex.li@oyiyio.com \
       web.name=yi-svc-storage \
@@ -9,6 +9,7 @@ EXPOSE 3000
 # Run as an unprivileged user.
 RUN addgroup -S oyiyio && adduser -S -G oyiyio oyiyio
 RUN mkdir /app && chown oyiyio /app
+RUN mkdir -p /app/bucket && chown oyiyio /app/bucket
 USER oyiyio
 
 WORKDIR /app

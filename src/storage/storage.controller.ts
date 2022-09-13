@@ -50,12 +50,13 @@ export class StorageController {
     @UploadedFiles() files: Array<Express.Multer.File>
   ) {
     const userId = req.user?.userId
+    const parentId = req?.data?.parentId || 'root'
 
     if (!Types.ObjectId.isValid(userId) || files.length <= 0) {
       throw new BadRequestException()
     }
 
-    const ids = await this.storageService.store(files, userId)
+    const ids = await this.storageService.store(files, userId, parentId)
 
     return ids
   }

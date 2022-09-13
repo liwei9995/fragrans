@@ -57,7 +57,7 @@ export class StorageService implements OnModuleInit {
     return items.concat(pathItems)
   }
 
-  async store(files, userId: string): Promise<Record<string, string>> {
+  async store(files, userId: string, parentId: 'root'): Promise<Record<string, string>> {
     const fields = Object.keys(files || {})
 
     if (fields.length <= 0) {
@@ -75,14 +75,16 @@ export class StorageService implements OnModuleInit {
 
       let doc = await this.findOne({
         MD5Hash: hash,
-        userId
+        userId,
+        parentId
       })
       const fileDoc = await this.storageModel.findByHash(hash)
 
       if (!doc) {
         doc = await this.storageModel.createByFile({
           ...file,
-          userId
+          userId,
+          parentId
         })
       }
 
