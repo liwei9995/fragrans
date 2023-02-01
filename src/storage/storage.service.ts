@@ -68,8 +68,14 @@ export class StorageService implements OnModuleInit {
 
     for (const field of fields) {
       const file = files[field]
-      const fileStream = file?.buffer?.toString()
-      const hash = await md5(Readable.from(fileStream))
+      const fileStream = file?.buffer
+      const readableStream = new Readable({
+        read() {
+          this.push(fileStream)
+          this.push(null)
+        }
+      })
+      const hash = await md5(readableStream)
 
       file.hash = hash
 
@@ -89,7 +95,12 @@ export class StorageService implements OnModuleInit {
       }
 
       if (!fileDoc) {
-        await this.localStorage.store(doc.MD5Hash, Readable.from(fileStream))
+        await this.localStorage.store(doc.MD5Hash, new Readable({
+          read() {
+            this.push(fileStream)
+            this.push(null)
+          }
+        }))
       } else {
         this.logger.log(`Stored file ${doc._id} is matched, no new file stored`)
       }
