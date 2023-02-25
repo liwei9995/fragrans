@@ -241,6 +241,26 @@ export class StorageController {
       throw new BadRequestException()
     }
 
+    const doc = await this.storageService.findOne({
+      userId,
+      name: body.name,
+      parentId: body.parentId || 'root',
+      type: body.type,
+      trashed: false
+    })
+
+    if (doc?.name) {
+      return {
+        _id: doc._id,
+        name: doc.name,
+        parentId: doc.parentId,
+        type: doc.type,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+        exist: true
+      }
+    }
+
     const result = await this.storageService.updateOne(
       id,
       userId,
