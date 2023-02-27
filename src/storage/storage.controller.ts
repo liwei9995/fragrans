@@ -162,7 +162,6 @@ export class StorageController {
     const files = await this.storageService.getPath(fileId, userId)
 
     return files
-      .filter((file) => file?._id?.toString() !== fileId)
       .reverse()
       .map((file) => desensitize(file))
   }
