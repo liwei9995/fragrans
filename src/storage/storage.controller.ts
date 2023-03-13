@@ -33,6 +33,7 @@ const desensitize = (file) => ({
   size: file?.size,
   parentId: file?.parentId,
   type: file?.type,
+  thumbnail: file?.thumbnail,
   createdAt: file?.createdAt,
   updatedAt: file?.updatedAt,
 })
@@ -136,6 +137,12 @@ export class StorageController {
       ...query,
       userId,
       trashed: false,
+      type: {
+        $in: [
+          'file',
+          'folder'
+        ]
+      }
     }, pagination)
 
     const docs = files?.docs?.map((file) => desensitize(file))

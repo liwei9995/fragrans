@@ -9,6 +9,7 @@ export type File = {
   hash?: string
   parentId?: string
   userId: string
+  thumbnail?: string
 }
 
 export default class StorageClass {
@@ -28,6 +29,7 @@ export default class StorageClass {
       parentId: file.parentId,
       userId: file.userId,
       type: file.type || 'file',
+      thumbnail: file.thumbnail
     }
 
     return this.create(obj)

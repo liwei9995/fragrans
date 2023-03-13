@@ -1,9 +1,19 @@
 import { Readable } from 'stream'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { parse, extname } from 'path'
+import * as imageThumbnail from 'image-thumbnail'
 import LocalStorage from './storage.local'
 import { InjectModel } from '@nestjs/mongoose'
 import { Storage, StorageDocument } from './schemas/storage.schema'
 import md5 from '../utils/md5'
+
+const thumbnail_extension_allowlist = [
+  'image/bmp',
+  'image/jpg',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+]
 
 @Injectable()
 export class StorageService implements OnModuleInit {
@@ -57,7 +67,65 @@ export class StorageService implements OnModuleInit {
     return items.concat(pathItems)
   }
 
-  async store(files, userId: string, parentId: 'root'): Promise<Record<string, string>> {
+  getReadableStream(fileStream): Readable {
+    return new Readable({
+      read() {
+        this.push(fileStream)
+        this.push(null)
+      }
+    })
+  }
+
+  async generateThumbnail(file, docId: string, userId: string, parentId: 'root'): Promise<void> {
+    const isInAllowlist = thumbnail_extension_allowlist.includes(file?.mimetype?.toLowerCase())
+
+    if (!docId || !file || !isInAllowlist) {
+      return
+    }
+
+    try {
+      const thumbnail = await imageThumbnail(file?.buffer)
+      const readableStream = this.getReadableStream(thumbnail)
+      const hash = await md5(readableStream)
+      const { name: fileName } = parse(file.originalname)
+      const fileExtname = extname(file.originalname)
+      const originalname = `${fileName}_thumbnail${fileExtname}`
+      const thumbnailObj = {
+        size: thumbnail.size,
+        originalname,
+        hash,
+        type: 'thumbnail',
+      }
+      let doc = await this.findOne({
+        MD5Hash: hash,
+        userId,
+        parentId
+      })
+      const fileDoc = await this.storageModel.findByHash(hash)
+
+      if (!doc) {
+        doc = await this.storageModel.createByFile({
+          ...thumbnailObj,
+          userId,
+          parentId
+        })
+      }
+
+      if (!fileDoc) {
+        await this.localStorage.store(doc.MD5Hash, this.getReadableStream(thumbnail))
+      } else {
+        this.logger.log(`Stored thumbnail file ${doc._id} is matched, no new file stored`)
+      }
+
+      await this.updateOne(docId, userId, { thumbnail: doc._id })
+    } catch (error) {
+      this.logger.error(`Generate thumbnail error: ${error}`)
+
+      return error
+    }
+  }
+
+  async store(files, userId: string, parentId: 'root', generateThumbnail = true): Promise<Record<string, string>> {
     const fields = Object.keys(files || {})
 
     if (fields.length <= 0) {
@@ -69,12 +137,7 @@ export class StorageService implements OnModuleInit {
     for (const field of fields) {
       const file = files[field]
       const fileStream = file?.buffer
-      const readableStream = new Readable({
-        read() {
-          this.push(fileStream)
-          this.push(null)
-        }
-      })
+      const readableStream = this.getReadableStream(fileStream)
       const hash = await md5(readableStream)
 
       file.hash = hash
@@ -92,15 +155,19 @@ export class StorageService implements OnModuleInit {
           userId,
           parentId
         })
+
+        if (generateThumbnail) {
+          this.generateThumbnail(
+            file,
+            doc._id,
+            userId,
+            parentId
+          )
+        }
       }
 
       if (!fileDoc) {
-        await this.localStorage.store(doc.MD5Hash, new Readable({
-          read() {
-            this.push(fileStream)
-            this.push(null)
-          }
-        }))
+        await this.localStorage.store(doc.MD5Hash, this.getReadableStream(fileStream))
       } else {
         this.logger.log(`Stored file ${doc._id} is matched, no new file stored`)
       }

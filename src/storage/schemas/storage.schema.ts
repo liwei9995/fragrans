@@ -37,6 +37,9 @@ export class Storage {
   @Prop()
     userId?: string
 
+  @Prop()
+    thumbnail?: string
+
   @Prop({ default: false })
     trashed: boolean
 
