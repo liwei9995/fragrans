@@ -91,7 +91,7 @@ export class StorageService implements OnModuleInit {
       const fileExtname = extname(file.originalname)
       const originalname = `${fileName}_thumbnail${fileExtname}`
       const thumbnailObj = {
-        size: thumbnail.size,
+        size: thumbnail.length,
         originalname,
         hash,
         type: 'thumbnail',
