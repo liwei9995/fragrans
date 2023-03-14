@@ -5,6 +5,9 @@ import { StorageController } from './storage.controller'
 import { StorageService } from './storage.service'
 import { Storage, StorageSchema } from './schemas/storage.schema'
 import StorageClass from './models/storage.model'
+import { ConfigModule } from '../config/config.module'
+import { JwtModule } from '@nestjs/jwt'
+import { jwtConstants } from './constants'
 
 @Module({
   imports: [
@@ -24,6 +27,11 @@ import StorageClass from './models/storage.model'
         return schema
       }
     }]),
+    ConfigModule.register(),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: jwtConstants.expiresIn },
+    }),
   ],
   controllers: [ StorageController ],
   providers: [ StorageService ],

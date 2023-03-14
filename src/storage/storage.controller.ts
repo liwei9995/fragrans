@@ -8,7 +8,9 @@ import {
   Response,
   StreamableFile,
   BadRequestException,
+  NotFoundException,
   Request,
+  Query,
   Body,
   Param,
   Logger,
@@ -16,10 +18,12 @@ import {
 } from '@nestjs/common'
 import * as contentDisposition from 'content-disposition'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
-import { Express } from 'express'
 import { Types } from 'mongoose'
+import { JwtService } from '@nestjs/jwt'
 import { Role } from '../common/enums/role.enum'
+import { Public } from '../common/decorator/auth.decorator'
 import { Roles } from '../common/decorator/roles.decorator'
+import { ConfigService } from '../config/config.service'
 import { StorageService } from './storage.service'
 import { ReadStream } from 'fs'
 
@@ -34,14 +38,27 @@ const desensitize = (file) => ({
   parentId: file?.parentId,
   type: file?.type,
   thumbnail: file?.thumbnail,
+  url: file?.url,
   createdAt: file?.createdAt,
   updatedAt: file?.updatedAt,
 })
 
 @Controller('storage')
 export class StorageController {
-  constructor(private storageService: StorageService) {}
+  constructor(
+    private configService: ConfigService,
+    private jwtService: JwtService,
+    private storageService: StorageService
+  ) {}
   private readonly logger = new Logger(StorageController.name)
+
+  getDomain() {
+    const host = this.configService.get('http.host')
+    const port = this.configService.get('http.port')
+    const domain = this.configService.get('drive.domain') || `http://${host}:${port}`
+
+    return domain
+  }
 
   @Post('upload')
   @Roles(Role.User)
@@ -145,7 +162,18 @@ export class StorageController {
       }
     }, pagination)
 
-    const docs = files?.docs?.map((file) => desensitize(file))
+    const domain = this.getDomain()
+    const token = this.jwtService.sign({ userId })
+    const docs = files?.docs?.map((file) => {
+      const doc = desensitize(file)
+
+      if (doc.thumbnail) {
+        doc.thumbnail = `${domain}/v1/storage/${doc.thumbnail}?token=${token}`
+        doc.url = `${domain}/v1/storage/${doc.id}?token=${token}`
+      }
+
+      return doc
+    })
 
     return {
       ...files,
@@ -194,14 +222,48 @@ export class StorageController {
     return result
   }
 
-  @Get(':id')
+  @Post('download/url')
   @Roles(Role.User)
+  async getDownloadUrl(
+    @Request() req,
+    @Body() body
+  ): Promise<BadRequestException | any> {
+    const userId = req.user?.userId
+    const { fileId } = body
+
+    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(fileId)) {
+      throw new BadRequestException()
+    }
+
+    const doc = await this.storageService.findOne({
+      _id: fileId,
+      trashed: false
+    })
+
+    if (!doc) {
+      throw new NotFoundException()
+    }
+
+    const token = this.jwtService.sign({ userId })
+    const domain = this.getDomain()
+    const url = `${domain}/v1/storage/${doc._id}?token=${token}`
+
+    return {
+      ...desensitize(doc),
+      url
+    }
+  }
+
+  @Public()
+  @Get(':id')
   async getFile(
     @Param('id') id: string,
-    @Request() req,
+    @Query() query,
     @Response({ passthrough: true }) res
   ): Promise<BadRequestException | StreamableFile | string> {
-    const userId = req.user?.userId
+    const token = query?.token
+    const payload = this.jwtService.decode(token) as { userId?: string }
+    const userId = payload?.userId
 
     if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
       throw new BadRequestException()

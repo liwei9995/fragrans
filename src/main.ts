@@ -22,7 +22,7 @@ async function bootstrap() {
     defaultVersion: '1',
   })
 
-  app.use(helmet())
+  app.use(helmet({ crossOriginResourcePolicy: false }))
   app.enableCors({ origin: '*' })
 
   await app.listen(port)

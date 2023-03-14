@@ -14,5 +14,8 @@
   },
   "storage": {
     "destination": "/bucket/storage"
+  },
+  "drive": {
+    "domain": ""
   }
 }
