@@ -164,6 +164,8 @@ export class StorageService implements OnModuleInit {
             parentId
           )
         }
+      } else if (doc.trashed) {
+        await this.updateOne(doc._id, userId, { trashed: false })
       }
 
       if (!fileDoc) {
