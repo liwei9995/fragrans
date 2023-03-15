@@ -8,11 +8,13 @@ import { Storage, StorageDocument } from './schemas/storage.schema'
 import md5 from '../utils/md5'
 
 const thumbnail_extension_allowlist = [
-  'image/bmp',
-  'image/jpg',
   'image/png',
   'image/jpeg',
   'image/webp',
+  'image/avif',
+  'image/tiff',
+  'image/gif',
+  'image/svg',
 ]
 
 @Injectable()
