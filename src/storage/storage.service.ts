@@ -14,7 +14,7 @@ const thumbnail_extension_allowlist = [
   'image/avif',
   'image/tiff',
   'image/gif',
-  'image/svg',
+  'image/svg+xml',
 ]
 
 @Injectable()
