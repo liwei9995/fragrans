@@ -14,7 +14,7 @@ const thumbnail_extension_allowlist = [
   'image/avif',
   'image/tiff',
   'image/gif',
-  'image/svg+xml',
+  // 'image/svg+xml', // not supported
 ]
 
 @Injectable()
@@ -159,7 +159,7 @@ export class StorageService implements OnModuleInit {
         })
 
         if (generateThumbnail) {
-          this.generateThumbnail(
+          await this.generateThumbnail(
             file,
             doc._id,
             userId,
