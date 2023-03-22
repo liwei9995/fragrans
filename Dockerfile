@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --chown=oyiyio:oyiyio package.json /app/
 COPY --chown=oyiyio:oyiyio yarn.lock /app/
 
-RUN yarn install
+RUN yarn install --production
 
 COPY --chown=oyiyio:oyiyio . .
 
