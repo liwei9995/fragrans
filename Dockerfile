@@ -1,8 +1,8 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
-LABEL web.maintainer=alex.li@oyiyio.com \
-      web.name=yi-svc-storage \
-      web.version=0.0.1
+LABEL svc.maintainer=alex.li@oyiyio.com \
+      svc.name=yi-svc-storage \
+      svc.version=0.0.8
 
 EXPOSE 3000
 
