@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common'
 import * as contentDisposition from 'content-disposition'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
+import { Express } from 'express'
 import { Types } from 'mongoose'
 import { JwtService } from '@nestjs/jwt'
 import { Role } from '../common/enums/role.enum'
