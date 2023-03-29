@@ -1,7 +1,9 @@
 import * as fs from 'fs'
+import { Readable } from 'stream'
 import { dirname, join } from 'path'
 import { sync } from 'mkdirp'
 import { Logger } from '@nestjs/common'
+import { encryptBuffer, decryptStream } from '../utils/encryption'
 
 const SUB_DIRECTORY_DEPTH = 3
 const SUB_DIRECTORY_LENGTH = 2
@@ -54,6 +56,15 @@ const pipeStream = (readable, writable) => new Promise((
   readable.on('end', () => resolve(true))
   readable.pipe(writable)
 })
+
+const getReadableStream = (fileStream): Readable => {
+  return new Readable({
+    read() {
+      this.push(fileStream)
+      this.push(null)
+    }
+  })
+}
 
 class LocalStorage {
   options: {
@@ -131,14 +142,18 @@ class LocalStorage {
     return fs.existsSync(p)
   }
 
-  fetch(id) {
+  fetch(id, iv?: string) {
     const p = this.getPath(id)
     const exists = this.exists(id)
 
-    return exists ? fs.createReadStream(p) : null
+    return exists
+      ? iv
+        ? decryptStream(id, iv, fs.createReadStream(p))
+        : fs.createReadStream(p)
+      : null
   }
 
-  async store(id, stream) {
+  async store(id: string, buffer, iv?: string) {
     const ok = this.exists(id)
 
     if (ok) {
@@ -154,7 +169,12 @@ class LocalStorage {
 
     const ws = fs.createWriteStream(p)
 
-    await pipeStream(stream, ws)
+    await pipeStream(
+      getReadableStream(
+        iv ? encryptBuffer(id, iv, buffer) : buffer
+      ),
+      ws
+    )
     this.logger.log(`Local-store: ${id} stored at ${p}`)
 
     return true

@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 LABEL svc.maintainer=alex.li@oyiyio.com \
       svc.name=yi-svc-storage \
-      svc.version=0.0.8
+      svc.version=0.0.9
 
 EXPOSE 3000
 

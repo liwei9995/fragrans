@@ -28,6 +28,9 @@ export class Storage {
   @Prop()
     MD5Hash?: string
 
+  @Prop()
+    iv?: string
+
   @Prop({ default: 'root' })
     parentId?: string
 

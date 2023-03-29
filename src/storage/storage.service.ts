@@ -1,4 +1,3 @@
-import { Readable } from 'stream'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { parse, extname } from 'path'
 import * as imageThumbnail from 'image-thumbnail'
@@ -6,6 +5,7 @@ import LocalStorage from './storage.local'
 import { InjectModel } from '@nestjs/mongoose'
 import { Storage, StorageDocument } from './schemas/storage.schema'
 import md5 from '../utils/md5'
+import { getIV } from '../utils/encryption'
 
 const thumbnail_extension_allowlist = [
   'image/png',
@@ -69,15 +69,6 @@ export class StorageService implements OnModuleInit {
     return items.concat(pathItems)
   }
 
-  getReadableStream(fileStream): Readable {
-    return new Readable({
-      read() {
-        this.push(fileStream)
-        this.push(null)
-      }
-    })
-  }
-
   async generateThumbnail(file, docId: string, userId: string, parentId: 'root'): Promise<void> {
     const isInAllowlist = thumbnail_extension_allowlist.includes(file?.mimetype?.toLowerCase())
 
@@ -87,8 +78,8 @@ export class StorageService implements OnModuleInit {
 
     try {
       const thumbnail = await imageThumbnail(file?.buffer)
-      const readableStream = this.getReadableStream(thumbnail)
-      const hash = await md5(readableStream)
+      const hash = await md5(thumbnail)
+      const iv = getIV()
       const { name: fileName } = parse(file.originalname)
       const fileExtname = extname(file.originalname)
       const originalname = `${fileName}_thumbnail${fileExtname}`
@@ -96,6 +87,7 @@ export class StorageService implements OnModuleInit {
         size: thumbnail.length,
         originalname,
         hash,
+        iv,
         type: 'thumbnail',
       }
       let doc = await this.findOne({
@@ -114,7 +106,7 @@ export class StorageService implements OnModuleInit {
       }
 
       if (!fileDoc) {
-        await this.localStorage.store(doc.MD5Hash, this.getReadableStream(thumbnail))
+        await this.localStorage.store(doc.MD5Hash, thumbnail, iv)
       } else {
         this.logger.log(`Stored thumbnail file ${doc._id} is matched, no new file stored`)
       }
@@ -138,11 +130,12 @@ export class StorageService implements OnModuleInit {
 
     for (const field of fields) {
       const file = files[field]
-      const fileStream = file?.buffer
-      const readableStream = this.getReadableStream(fileStream)
-      const hash = await md5(readableStream)
+      const fileBuffer = file?.buffer
+      const hash = await md5(fileBuffer)
+      const iv = getIV()
 
       file.hash = hash
+      file.iv = iv
 
       let doc = await this.findOne({
         MD5Hash: hash,
@@ -171,7 +164,7 @@ export class StorageService implements OnModuleInit {
       }
 
       if (!fileDoc) {
-        await this.localStorage.store(doc.MD5Hash, this.getReadableStream(fileStream))
+        await this.localStorage.store(doc.MD5Hash, fileBuffer, iv)
       } else {
         this.logger.log(`Stored file ${doc._id} is matched, no new file stored`)
       }
@@ -203,7 +196,7 @@ export class StorageService implements OnModuleInit {
       }
     }
 
-    const stream = this.localStorage.fetch(doc.MD5Hash)
+    const stream = this.localStorage.fetch(doc.MD5Hash, doc.iv)
 
     if (!stream) {
       this.logger.error(`Found file with id ${doc._id} in database, but no file found on file system`)

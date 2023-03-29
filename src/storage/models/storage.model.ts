@@ -7,6 +7,7 @@ export type File = {
   type?: string
   encoding?: string
   hash?: string
+  iv?: string
   parentId?: string
   userId: string
   thumbnail?: string
@@ -26,6 +27,7 @@ export default class StorageClass {
       mimeType: file.mimetype,
       encoding: file.encoding,
       MD5Hash: file.hash,
+      iv: file.iv,
       parentId: file.parentId,
       userId: file.userId,
       type: file.type || 'file',
