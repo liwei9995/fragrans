@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common'
 import * as contentDisposition from 'content-disposition'
 import { AnyFilesInterceptor } from '@nestjs/platform-express'
+import { basename, extname } from 'path'
 import { Express } from 'express'
 import { Types } from 'mongoose'
 import { JwtService } from '@nestjs/jwt'
@@ -330,10 +331,16 @@ export class StorageController {
       }
     }
 
+    const baseName = basename(body.name)
+    const extName = extname(body.name)
     const result = await this.storageService.updateOne(
       id,
       userId,
-      { name: body.name },
+      {
+        name: body.name,
+        baseName,
+        extName
+      },
       { new: true }
     )
 
