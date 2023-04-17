@@ -3,7 +3,7 @@ FROM node:18-alpine as base
 
 LABEL svc.maintainer=alex.li@oyiyio.com \
       svc.name=yi-svc-storage \
-      svc.version=0.0.10
+      svc.version=0.0.11
 
 RUN npm i -g pnpm
 
@@ -27,8 +27,10 @@ RUN mkdir /app
 RUN mkdir -p /app/bucket
 
 WORKDIR /app
-COPY --from=build-stage /app/node_modules ./node_modules
+COPY --from=build-stage /app/package.json /app/pnpm-lock.yaml ./
+COPY --from=build-stage /app/config ./config
 COPY --from=build-stage /app/dist ./dist
+RUN pnpm install --prod --verbose
 
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]
