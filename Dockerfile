@@ -30,6 +30,7 @@ WORKDIR /app
 COPY --from=build-stage /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=build-stage /app/config ./config
 COPY --from=build-stage /app/dist ./dist
+ENV NODE_ENV=production
 RUN pnpm install --prod --verbose
 
 # Start the server using the production build
