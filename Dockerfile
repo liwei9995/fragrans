@@ -27,7 +27,8 @@ RUN mkdir /app
 RUN mkdir -p /app/bucket
 
 WORKDIR /app
-COPY --from=build-stage /app/dist /app
+COPY --from=build-stage /app/node_modules ./node_modules
+COPY --from=build-stage /app/dist ./dist
 
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]
