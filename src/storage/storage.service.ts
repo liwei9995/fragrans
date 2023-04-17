@@ -48,7 +48,7 @@ export class StorageService implements OnModuleInit {
   }
 
   async deleteAll(): Promise<any> {
-    return this.storageModel.deleteMany()
+    return this.storageModel.deleteAll()
   }
 
   async createFolder(folder = {}): Promise<StorageDocument> {

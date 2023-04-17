@@ -45,7 +45,10 @@ const desensitize = (file) => ({
   updatedAt: file?.updatedAt,
 })
 
-@Controller('storage')
+@Controller({
+  path: 'storage',
+  version: '1'
+})
 export class StorageController {
   constructor(
     private configService: ConfigService,

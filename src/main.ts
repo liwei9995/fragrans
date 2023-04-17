@@ -18,8 +18,7 @@ async function bootstrap() {
 
   // Add default version
   app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
+    type: VersioningType.URI
   })
 
   app.use(helmet({ crossOriginResourcePolicy: false }))

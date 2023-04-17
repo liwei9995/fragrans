@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 import { User, UserDocument } from './schemas/user.schema'
 import { CreateUserDto } from './dto/create-user.dto'
+import { DeleteResult } from 'mongodb'
 
 @Injectable()
 export class UsersService implements OnModuleInit, OnApplicationShutdown {
@@ -49,7 +50,7 @@ export class UsersService implements OnModuleInit, OnApplicationShutdown {
     return this.userModel.findOneAndRemove({ _id: id })
   }
 
-  async deleteAll() {
+  async deleteAll(): Promise<DeleteResult> {
     return this.userModel.deleteMany()
   }
 

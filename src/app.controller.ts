@@ -5,7 +5,9 @@ import { LocalAuthGuard } from './auth/local-auth.guard'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { Public } from './common/decorator/auth.decorator'
 
-@Controller()
+@Controller({
+  version: '1'
+})
 export class AppController {
   constructor(
     private readonly appService: AppService,

@@ -21,7 +21,10 @@ import { Public } from '../common/decorator/auth.decorator'
 import { Role } from '../common/enums/role.enum'
 import { Roles } from '../common/decorator/roles.decorator'
 
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1'
+})
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
