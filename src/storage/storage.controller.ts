@@ -9,6 +9,7 @@ import {
   StreamableFile,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
   Request,
   Query,
   Body,
@@ -267,8 +268,18 @@ export class StorageController {
     @Response({ passthrough: true }) res
   ): Promise<BadRequestException | StreamableFile | string> {
     const token = query?.token
-    const payload = this.jwtService.decode(token) as { userId?: string }
+    const payload = this.jwtService.decode(token) as {
+      userId?: string
+      exp: number
+    }
     const userId = payload?.userId
+    const exp = payload?.exp
+    const timestamp = parseInt((Date.now() / 1000).toString())
+    const isExpired = exp - timestamp < 0
+
+    if (isExpired) {
+      throw new UnauthorizedException()
+    }
 
     if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
       throw new BadRequestException()
