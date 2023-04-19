@@ -176,6 +176,8 @@ export class StorageController {
       if (doc.thumbnail) {
         doc.thumbnail = `${domain}/v1/storage/${doc.thumbnail}?token=${token}`
         doc.url = `${domain}/v1/storage/${doc.id}?token=${token}`
+      } else if (doc.mimeType.startsWith('video/')) {
+        doc.url = `${domain}/v1/storage/${doc.id}?token=${token}`
       }
 
       return doc
