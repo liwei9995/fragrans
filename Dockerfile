@@ -1,11 +1,12 @@
 # build stage
-FROM node:18-alpine as base
+FROM node:19-alpine as base
 
 LABEL svc.maintainer=alex.li@oyiyio.com \
       svc.name=yi-svc-storage \
-      svc.version=0.0.11
+      svc.version=0.0.12
 
 RUN npm i -g pnpm
+RUN pnpm -v
 
 FROM base as build-stage
 
