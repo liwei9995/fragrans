@@ -14,7 +14,7 @@ USER oyiyio
 
 WORKDIR /app
 COPY --chown=oyiyio:oyiyio package.json yarn.lock /app/
-RUN yarn install --verbose
+RUN yarn install
 COPY --chown=oyiyio:oyiyio . .
 ENV NODE_ENV=production
 RUN yarn build
@@ -29,7 +29,7 @@ COPY --from=build-stage /app/package.json /app/yarn.lock ./
 COPY --from=build-stage /app/config ./config
 COPY --from=build-stage /app/dist ./dist
 ENV NODE_ENV=production
-RUN yarn install --production --verbose
+RUN yarn install --production
 
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]
