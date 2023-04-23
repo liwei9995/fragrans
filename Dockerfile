@@ -3,7 +3,7 @@ FROM node:18-alpine as base
 
 LABEL svc.maintainer=alex.li@oyiyio.com \
       svc.name=yi-svc-storage \
-      svc.version=0.0.13
+      svc.version=0.0.14
 
 FROM base as build-stage
 

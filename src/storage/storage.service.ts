@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
-import { parse, extname } from 'path'
+import { parse, basename, extname } from 'path'
 import * as imageThumbnail from 'image-thumbnail'
 import LocalStorage from './storage.local'
 import { InjectModel } from '@nestjs/mongoose'
@@ -160,7 +160,18 @@ export class StorageService implements OnModuleInit {
           )
         }
       } else if (doc.trashed) {
-        await this.updateOne(doc._id, userId, { trashed: false })
+        await this.updateOne(doc._id, userId, {
+          name: file.originalname,
+          baseName: basename(file.originalname),
+          extName: extname(file.originalname),
+          trashed: false
+        })
+      } else if (doc.name !== file.originalname) {
+        await this.updateOne(doc._id, userId, {
+          name: file.originalname,
+          baseName: basename(file.originalname),
+          extName: extname(file.originalname)
+        })
       }
 
       if (!fileDoc) {
