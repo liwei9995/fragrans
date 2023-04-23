@@ -68,7 +68,12 @@ export class StorageController {
 
   @Post('upload')
   @Roles(Role.User)
-  @UseInterceptors(AnyFilesInterceptor())
+  @UseInterceptors(AnyFilesInterceptor({
+    fileFilter(req, file, callback) {
+      file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
+      callback(null, true)
+    },
+  }))
   async uploadFile(
     @Request() req,
     @UploadedFiles() files: Array<Express.Multer.File>
