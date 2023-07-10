@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://www.oyiyio.com" target="blank"><img src="https://static.oyiyio.com/api/v1/storage/fetch/file?id=62788249cbfa850017c2d512" width="160" alt="Fragrans Logo" /></a>
+  <a href="https://www.oyiyio.com" target="blank"><img src="./public/logo/logo_fragrans.svg" width="160" alt="Fragrans Logo" /></a>
 </p>
 
 <p align="center">A <a href="http://nodejs.org" target="_blank">Node.js</a> project based on <a href="https://github.com/nestjs/nest" target="_blank">Nest</a> for building file storage service.</p>
