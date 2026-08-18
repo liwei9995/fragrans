@@ -1,5 +1,7 @@
 # Fragrans
 
+> ⚠️ **DEPRECATED**: This project has been deprecated and its features have been integrated into the **fragrance-drive** project.
+
 A high-performance file storage service rewritten in **Rust**.
 
 ## Description
